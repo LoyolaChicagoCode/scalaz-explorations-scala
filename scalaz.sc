@@ -37,3 +37,5 @@ import std.string._
 "asdf" assert_=== "asdf"
 
 
+import syntax.id._
+1 + 2 + 3 |> identity |> { 2 + _ }
