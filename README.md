@@ -1,4 +1,4 @@
-My ongoing explorations of scalaz.
+My ongoing explorations of scalaz. For simplicity and agility, these are organized as IntelliJ IDEA worksheets.
 
 There are several good reasons to use scalaz:
 
@@ -7,8 +7,6 @@ There are several good reasons to use scalaz:
 - You get common abstractions such as Functor across predefined types
   otherwise not formally related (higher-kinded typing).
 - Various excellent libraries leverage scalaz.
-
-For simplicity and agility, these explorations are organized as worksheets.
 
 An excellent, accessible, and pragmatic scalaz intro is available here:
 
