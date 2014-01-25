@@ -19,6 +19,7 @@ def duplicate[T: Monoid](x: T) = x |+| x
 
 duplicate(3) assert_=== 6
 duplicate(List(1, 2)) assert_=== List(1, 2, 1, 2)
+duplicate("hello") assert_=== "hellohello"
 
 // TODO replicate monoid n times
 
