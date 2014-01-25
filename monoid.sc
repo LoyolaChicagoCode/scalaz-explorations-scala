@@ -20,6 +20,8 @@ def duplicate[T: Monoid](x: T) = x |+| x
 duplicate(3) assert_=== 6
 duplicate(List(1, 2)) assert_=== List(1, 2, 1, 2)
 
+// TODO replicate monoid n times
+
 def appendAll[E: Monoid](ms: Traversable[E]) =
   ms.foldLeft(∅[E])((_: E) |+| (_: E))
 
