@@ -24,7 +24,7 @@ duplicate("hello") assert_=== "hellohello"
 // TODO replicate monoid n times
 
 def appendAll[E: Monoid](ms: Traversable[E]) =
-  ms.foldLeft(∅[E])((_: E) |+| (_: E))
+  ms.foldLeft { ∅[E] } { _ |+| _ }
 
 appendAll(None: Option[Int]) assert_=== 0
 appendAll(Some(3)) assert_=== 3

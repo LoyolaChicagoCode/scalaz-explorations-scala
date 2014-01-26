@@ -8,7 +8,7 @@ libraryDependencies ++= Seq(
   "org.scalacheck" %% "scalacheck" % "1.11.1" % "test"
 )
 
-scalacOptions ++= Seq("-deprecation", "-feature", "-unchecked")
+scalacOptions ++= Seq("-deprecation", "-feature", "-unchecked", "-language:higherKinds")
 
 initialCommands in console := """
                                 |import scalaz._
