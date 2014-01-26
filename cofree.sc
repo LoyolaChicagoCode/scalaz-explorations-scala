@@ -20,6 +20,8 @@ val three = Cofree((), Some(Cofree((), Some(Cofree((), None: Option[Nat])))))
 type MyList = Cofree[Option, Int]
 val list = Cofree(1, Some(Cofree(2, Some(Cofree(3, None: Option[MyList])))))
 
+// TODO support for zero and empty list
+
 // rose tree
 type MyTree = Cofree[Stream, Int]
 val tree = Cofree(1, Stream(Cofree(2, Stream.empty: Stream[MyTree]), Cofree(3, Stream.empty: Stream[MyTree])))
