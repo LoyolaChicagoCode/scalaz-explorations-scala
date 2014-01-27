@@ -19,7 +19,7 @@ import scalaz.syntax.std.option._ // for |
  * data List a = Nil | Cons a (List a)
  *
  * Rose trees can be defined similarly:
- * data Tree a = Node a (Stream (Tree a))
+ * data Tree a = Node a (List (Tree a))
  *
  * Cofree is a universal higher-order type constructor for recursive algebraic data types.
  *
