@@ -10,7 +10,8 @@ import scalaz.syntax.equal._ // for assert_===
 import scalaz.syntax.std.option._ // for |
 
 /*
- * We start by defining a few familiar recursive algebraic data types in Haskell syntax for conciseness:
+ * We start by defining a few familiar recursive algebraic data types in
+ * Haskell syntax for conciseness:
  *
  * Nat is a simple type to represent natural numbers:
  * data Nat = Zero | Succ Nat
@@ -21,15 +22,19 @@ import scalaz.syntax.std.option._ // for |
  * Rose trees can be defined similarly:
  * data Tree a = Node a (List (Tree a))
  *
- * Cofree is a universal higher-order type constructor for recursive algebraic data types.
+ * Cofree is a universal higher-order type constructor for recursive
+ * algebraic data types.
  *
  * Haskell definition of Cofree:
  * data Cofree f a = Cofree a (f (Cofree f a))
  *
- * Using Cofree, all of the above can be defined uniformly without explicit recursion!
- * In addition, we will be able to define a single catamorphism that works for all types defined in this way.
- * This catamorphism provides the familiar fold for lists and a proper catamorphism
- * (as opposed to a linearized traversal) for trees.
+ * Using Cofree, all of the above can be defined uniformly without explicit
+ * recursion!
+ *
+ * In addition, we will be able to define a single catamorphism that works
+ * for all types defined in this way. This catamorphism provides the familiar
+ * fold for lists and a proper catamorphism (as opposed to a linearized
+ * traversal) for trees.
  */
 
 type Nat = Cofree[Option, Unit]
