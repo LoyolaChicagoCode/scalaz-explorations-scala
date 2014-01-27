@@ -30,7 +30,7 @@ import scalaz.syntax.std.option._ // for |
  *
  * In some discussions, this type is represented as
  * newtype Fix f = Fx (f (Fix f))
- * where Fix is the type and Fx the value constructor
+ * where Fix is the type constructor and Fx the value constructor
  * (both called Cofree in the definition above).
  *
  * Using Cofree, all of the above can be defined uniformly without explicit
