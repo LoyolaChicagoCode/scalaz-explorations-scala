@@ -66,4 +66,6 @@ cata{ (_: Unit) => (s: Option[Int]) => 1 + (s | 0) }(three) assert_=== 3 // add 
 cata{ (n: Int)  => (s: Option[Int]) => n + (s | 0) }(list)  assert_=== 6 // add value of each node
 cata{ (n: Int)  => (s: Stream[Int]) => n + s.sum   }(tree)  assert_=== 6 // add value of each node
 
+// TODO retrofit this capability to existing types (Option, List, Tree, etc.)
+
 println("done")
