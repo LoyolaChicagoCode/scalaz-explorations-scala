@@ -28,6 +28,11 @@ import scalaz.syntax.std.option._ // for |
  * Haskell definition of Cofree:
  * data Cofree f a = Cofree a (f (Cofree f a))
  *
+ * In some discussions, this type is represented as
+ * newtype Fix f = Fx (f (Fix f))
+ * where Fix is the type and Fx the value constructor
+ * (both called Cofree in the definition above).
+ *
  * Using Cofree, all of the above can be defined uniformly without explicit
  * recursion!
  *
