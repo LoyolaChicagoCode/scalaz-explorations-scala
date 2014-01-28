@@ -48,12 +48,12 @@ val three: Option[Nat] = Some(Cofree((), Some(Cofree((), Some(Cofree((), zero)))
 
 // list
 type MyList[A] = Cofree[Option, A]
-val nil: Option[MyList[Int]] = None: Option[MyList[Int]]
+val nil:   Option[MyList[Int]] = None: Option[MyList[Int]]
 val list3: Option[MyList[Int]] = Some(Cofree(1, Some(Cofree(2, Some(Cofree(3, nil))))))
 
 // rose tree
 type MyTree = Cofree[Stream, Int]
-val tree0 = Stream.empty: Stream[MyTree]
+val tree0: Stream[MyTree] = Stream.empty
 val tree3: Stream[MyTree] = Stream(Cofree(1, Stream(Cofree(2, tree0), Cofree(3, tree0))))
 tree3.head.tail.map(_.head).toList assert_=== List(2, 3)
 
@@ -67,11 +67,11 @@ val toInt = (_: Unit) => (s: Option[Int]) => 1 + (s | 0) // add 1 for each node
 cata(toInt)(zero)  assert_=== none
 cata(toInt)(three) assert_=== 3.some
 
-val lsum = (n: Int)  => (s: Option[Int]) => n + (s | 0)  // add value of each node
+val lsum  = (n: Int)  => (s: Option[Int]) => n + (s | 0) // add value of each node
 cata(lsum)(nil)    assert_=== none
 cata(lsum)(list3)  assert_=== 6.some
 
-val tsum = (n: Int)  => (s: Stream[Int]) => n + s.sum    // add value of each node
+val tsum  = (n: Int)  => (s: Stream[Int]) => n + s.sum   // add value of each node
 cata(tsum)(tree0)  assert_=== Stream.empty
 cata(tsum)(tree3)  assert_=== Stream(6)
 
