@@ -1,12 +1,13 @@
 import scalaz.Cofree
 import scalaz.Functor
-import scalaz.std.anyVal._ // for Int to support ===
-import scalaz.std.option._ // for Option as a Functor instance
-import scalaz.std.stream._ // for Stream as a Functor instance
-import scalaz.std.list._ // for List to support ===
-import scalaz.syntax.functor._ // for map
-import scalaz.syntax.equal._ // for assert_===
+import scalaz.std.anyVal._        // for Int to support ===
+import scalaz.std.option._        // for Option as a Functor instance
+import scalaz.std.stream._        // for Stream as a Functor instance
+import scalaz.std.list._          // for List to support ===
+import scalaz.syntax.functor._    // for map
+import scalaz.syntax.equal._      // for assert_===
 import scalaz.syntax.std.option._ // for |
+import scalaz.syntax.monoid.∅
 
 /*
  * We start by defining a few familiar recursive algebraic data types in
@@ -43,37 +44,36 @@ import scalaz.syntax.std.option._ // for |
 
 // natural numbers
 type Nat = Cofree[Option, Unit]
-val zero:  Option[Nat] = None
-val three: Option[Nat] = Some(Cofree((), Some(Cofree((), Some(Cofree((), zero))))))
+val zero:  Nat = Cofree(∅[Unit], None)
+val three: Nat = Cofree((), Some(Cofree((), Some(Cofree((), Some(Cofree((), None)))))))
 
 // list
 type MyList[A] = Cofree[Option, A]
-val nil:   Option[MyList[Int]] = None: Option[MyList[Int]]
-val list3: Option[MyList[Int]] = Some(Cofree(1, Some(Cofree(2, Some(Cofree(3, nil))))))
+val nil:   MyList[Int] = Cofree(∅[Int], None)
+val list3: MyList[Int] = Cofree(1, Some(Cofree(2, Some(Cofree(3, Some(nil))))))
 
 // rose tree
 type MyTree = Cofree[Stream, Int]
-val tree0: Stream[MyTree] = Stream.empty
-val tree3: Stream[MyTree] = Stream(Cofree(1, Stream(Cofree(2, tree0), Cofree(3, tree0))))
-tree3.head.tail.map(_.head).toList assert_=== List(2, 3)
+val tree0: MyTree = Cofree(∅[Int], Stream.empty)
+val tree3: MyTree = Cofree(1, Stream(Cofree(2, Stream(tree0)), Cofree(3, Stream(tree0))))
+
+tree3.tail.map(_.head).toList assert_=== List(2, 3)
 
 // generalized catamorphism for Cofree
-def cata[S[+_], A, B](g: A => S[B] => B)(s: S[Cofree[S, A]])(implicit S: Functor[S]): S[B] = {
-  def cata1(c: Cofree[S, A]): B = g(c.head)(c.tail map cata1) // catamorphism for a single node
-  s map cata1 // catamorphism for nodes wrapped in functor
-}
+def cata[S[+_], A, B](g: A => S[B] => B)(s: Cofree[S, A])(implicit S: Functor[S]): B =
+  g(s.head)(s.tail map cata(g))
 
-val toInt = (_: Unit) => (s: Option[Int]) => 1 + (s | 0) // add 1 for each node
-cata(toInt)(zero)  assert_=== none
-cata(toInt)(three) assert_=== 3.some
+val toInt = (_: Unit) => (s: Option[Int]) => 1 + (s | -1) // add 1 for each node
+cata(toInt)(zero)  assert_=== 0
+cata(toInt)(three) assert_=== 3
 
 val lsum  = (n: Int)  => (s: Option[Int]) => n + (s | 0) // add value of each node
-cata(lsum)(nil)    assert_=== none
-cata(lsum)(list3)  assert_=== 6.some
+cata(lsum)(nil)    assert_=== 0
+cata(lsum)(list3)  assert_=== 6
 
 val tsum  = (n: Int)  => (s: Stream[Int]) => n + s.sum   // add value of each node
-cata(tsum)(tree0)  assert_=== Stream.empty
-cata(tsum)(tree3)  assert_=== Stream(6)
+cata(tsum)(tree0)  assert_=== 0
+cata(tsum)(tree3)  assert_=== 6
 
 println("done")
 
