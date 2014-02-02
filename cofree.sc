@@ -6,8 +6,7 @@ import scalaz.std.stream._        // for Stream as a Functor instance
 import scalaz.std.list._          // for List to support ===
 import scalaz.syntax.functor._    // for map
 import scalaz.syntax.equal._      // for assert_===
-import scalaz.syntax.std.option._ // for |
-import scalaz.syntax.monoid.∅
+import scalaz.syntax.std.option._ // for ~ (getOrElse 0)
 
 /*
  * We start by defining a few familiar recursive algebraic data types in
@@ -44,17 +43,17 @@ import scalaz.syntax.monoid.∅
 
 // natural numbers
 type Nat = Cofree[Option, Unit]
-val zero:  Nat = Cofree(∅[Unit], None)
-val three: Nat = Cofree((), Some(Cofree((), Some(Cofree((), Some(Cofree((), None)))))))
+val one:  Nat = Cofree((), None)
+val four: Nat = Cofree((), Some(Cofree((), Some(Cofree((), Some(one))))))
 
 // list
 type MyList[A] = Cofree[Option, A]
-val nil:   MyList[Int] = Cofree(∅[Int], None)
-val list3: MyList[Int] = Cofree(1, Some(Cofree(2, Some(Cofree(3, Some(nil))))))
+val list1: MyList[Int] = Cofree(1, None)
+val list4: MyList[Int] = Cofree(4, Some(Cofree(3, Some(Cofree(2, Some(list1))))))
 
 // rose tree
 type MyTree = Cofree[Stream, Int]
-val tree0: MyTree = Cofree(∅[Int], Stream.empty)
+val tree0: MyTree = Cofree(0, Stream.empty)
 val tree3: MyTree = Cofree(1, Stream(Cofree(2, Stream(tree0)), Cofree(3, Stream(tree0))))
 
 tree3.tail.map(_.head).toList assert_=== List(2, 3)
@@ -63,13 +62,13 @@ tree3.tail.map(_.head).toList assert_=== List(2, 3)
 def cata[S[+_], A, B](g: A => S[B] => B)(s: Cofree[S, A])(implicit S: Functor[S]): B =
   g(s.head)(s.tail map cata(g))
 
-val toInt = (_: Unit) => (s: Option[Int]) => 1 + (s | -1) // add 1 for each node
-cata(toInt)(zero)  assert_=== 0
-cata(toInt)(three) assert_=== 3
+val toInt = (_: Unit) => (s: Option[Int]) => 1 + ~s // add 1 for each node
+cata(toInt)(one)  assert_=== 1
+cata(toInt)(four) assert_=== 4
 
-val lsum  = (n: Int)  => (s: Option[Int]) => n + (s | 0) // add value of each node
-cata(lsum)(nil)    assert_=== 0
-cata(lsum)(list3)  assert_=== 6
+val lsum  = (n: Int)  => (s: Option[Int]) => n + ~s // add value of each node
+cata(lsum)(list1)  assert_=== 1
+cata(lsum)(list4)  assert_=== 10
 
 val tsum  = (n: Int)  => (s: Stream[Int]) => n + s.sum   // add value of each node
 cata(tsum)(tree0)  assert_=== 0
