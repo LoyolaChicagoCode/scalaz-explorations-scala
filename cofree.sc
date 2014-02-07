@@ -12,8 +12,10 @@ import scalaz.syntax.std.option._ // for ~ (getOrElse 0)
  * We start by defining a few familiar recursive algebraic data types in
  * Haskell syntax for conciseness:
  *
+ * data Option a = None | Some a
+ *
  * Nat is a simple type to represent natural numbers:
- * data Nat = Zero | Succ Nat
+ * data Nat = Zero | Succ Nat // = List[Unit]
  *
  * List can be defined as a generic algebraic data type:
  * data List a = Nil | Cons a (List a)
