@@ -12,10 +12,11 @@ import scalaz.syntax.std.option._ // for ~ (getOrElse 0)
  * We start by defining a few familiar recursive algebraic data types in
  * Haskell syntax for conciseness:
  *
+ * Option is a simple nonrecursive type to represent failure:
  * data Option a = None | Some a
  *
- * Nat is a simple type to represent natural numbers:
- * data Nat = Zero | Succ Nat // = List[Unit]
+ * Nat is a simple recursive type to represent natural numbers:
+ * data Nat = Zero | Succ Nat // ~ List Unit
  *
  * List can be defined as a generic algebraic data type:
  * data List a = Nil | Cons a (List a)
@@ -49,9 +50,16 @@ val one:  Nat = Cofree((), None)
 val four: Nat = Cofree((), Some(Cofree((), Some(Cofree((), Some(one))))))
 
 // list
+type MyIntList = Cofree[Option, Int]
+val ilist1: MyIntList = Cofree(1, None)
+val ilist4: MyIntList = Cofree(4, Some(Cofree(3, Some(Cofree(2, Some(ilist1))))))
+
+
+// list
 type MyList[A] = Cofree[Option, A]
 val list1: MyList[Int] = Cofree(1, None)
 val list4: MyList[Int] = Cofree(4, Some(Cofree(3, Some(Cofree(2, Some(list1))))))
+
 
 // rose tree
 type MyTree = Cofree[Stream, Int]
