@@ -1,10 +1,10 @@
-import scalaz.Monoid // provides monoid typeclass (abstraction)
-import scalaz.std.anyVal._ // provides standard instances of all basic types
-import scalaz.std.string._ // provides standard instances of string
-import scalaz.std.list._ // provides standard instances of list
+import scalaz.Monoid             // provides monoid typeclass (abstraction)
+import scalaz.std.anyVal._       // provides standard instances of all basic types
+import scalaz.std.string._       // provides standard instances of string
+import scalaz.std.list._         // provides standard instances of list
 import scalaz.syntax.semigroup._ // provides |+| = ⊹ = mappend
-import scalaz.syntax.monoid._ // in addition provides ∅ = mzero
-import scalaz.syntax.equal._ // provides assert_===
+import scalaz.syntax.monoid._    // in addition provides ∅ = mzero
+import scalaz.syntax.equal._     // provides assert_===
 
 ∅[Int] assert_=== 0
 3 |+| 4 assert_=== 7
@@ -35,3 +35,5 @@ import scalaz.std.option._ // provides standard instances of option
 import scalaz.syntax.std.option._ // provides option syntax: x.some, none
 import scalaz.syntax.equal._ // provides assert_===
 3.some |+| 4.some assert_=== 7.some
+
+println("■")
