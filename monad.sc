@@ -42,4 +42,6 @@ f[Id](3) assert_=== 6
 f[Option](3) assert_=== Some(6)
 f[List](3) assert_=== List(6)
 
+// TODO transparently inject effects such as logging
+
 println("■")
