@@ -33,4 +33,13 @@ import scalaz.syntax.equal._     // provides assert_===
   n <- (2 * m).point[List]
 } yield n) assert_=== List(6)
 
+def f[M[_]: Monad](k: Int) = for {
+  m <- 3.point[M]
+  n <- (2 * m).point[M]
+} yield n
+
+f[Id](3) assert_=== 6
+f[Option](3) assert_=== Some(6)
+f[List](3) assert_=== List(6)
+
 println("■")
