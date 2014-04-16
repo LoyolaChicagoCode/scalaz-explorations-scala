@@ -11,7 +11,7 @@ libraryDependencies ++= Seq(
   "org.scalaz" %% "scalaz-scalacheck-binding" % "7.0.5"
 )
 
-//initialCommands in console := """
-//                                |import scalaz._
-//                                |import Scalaz._
-//                                |""".stripMargin
+initialCommands in console := """
+                                |import scalaz._
+                                |import Scalaz._
+                                |""".stripMargin
