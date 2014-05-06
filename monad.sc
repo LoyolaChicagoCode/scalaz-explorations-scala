@@ -1,10 +1,13 @@
-import scalaz.Id                 // provides identity type constructor Id[X] = X
-import scalaz.MonadPlus          // provides monad typeclass (abstraction)
+import scalaz.Id._               // provides identity type constructor Id[X] = X
+import scalaz.Monad
+import scalaz.MonadPlus
+import scalaz.Monoid
 import scalaz.Writer
 import scalaz.std.anyVal._       // provides standard instances of all basic types
 import scalaz.std.string._       // provides standard instances of string
 import scalaz.std.list._         // provides standard instances of list
 import scalaz.std.option._       // provides standard instances of option
+import scalaz.syntax.monoid._    // in addition provides ∅ = mzero
 import scalaz.syntax.monadPlus._ // in addition provides ∅ = mzero
 import scalaz.syntax.equal._     // provides assert_===
 
