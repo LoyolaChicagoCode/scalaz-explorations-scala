@@ -6,19 +6,25 @@ import scalaz.syntax.monoid._    // provides |+| = ⊹ = mappend and ∅ = mzero
 import scalaz.syntax.equal._     // provides assert_===
 
 ∅[Int] assert_=== 0
+3 |+| ∅[Int] assert_=== 3
+∅[Int] |+| 3 assert_=== 3
 3 |+| 4 assert_=== 7
 
 ∅[List[Int]] assert_=== List.empty
+List(1, 2) |+| ∅[List[Int]] assert_=== List(1, 2)
+∅[List[Int]] |+| List(1, 2) assert_=== List(1, 2)
 List(1, 2) |+| List(3) assert_=== List(1, 2, 3)
 
 ∅[String] assert_=== ""
+"hello" |+| ∅[String] assert_=== "hello"
+∅[String] |+| "world" assert_=== "world"
 "hello" |+| "world" assert_=== "helloworld"
 
-def duplicate[T: Monoid](x: T) = x |+| x
+def twice[T: Monoid](x: T) = x |+| x
 
-duplicate(3) assert_=== 6
-duplicate(List(1, 2)) assert_=== List(1, 2, 1, 2)
-duplicate("hello") assert_=== "hellohello"
+twice(3) assert_=== 6
+twice(List(1, 2)) assert_=== List(1, 2, 1, 2)
+twice("hello") assert_=== "hellohello"
 
 // TODO replicate monoid n times
 
