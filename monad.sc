@@ -72,6 +72,16 @@ g[Option](3) assert_=== Some(6)
 g[List](2) assert_=== List.empty
 g[List](3) assert_=== List(6)
 
+
+def g2[M[_]: MonadPlus](m0: M[Int]) = for {
+  m <- m0
+  if m > 2
+  n <- (2 * m).point[M]
+} yield n
+
+g2(List(1, 2)) assert_=== List.empty
+g2(List(1, 2, 3, 4)) assert_=== List(6, 8)
+
 // abstracting over both the monad and the carrier type
 def h[M[_]: Monad, A: Monoid](k: A) = for {
   m <- mzero[A].point[M]
@@ -82,6 +92,12 @@ def h[M[_]: Monad, A: Monoid](k: A) = for {
 h[Option, Int](3) assert_=== Some(6)
 h[List, String]("hello") assert_=== List("hellohello")
 
-// TODO transparently inject effects such as logging
+// TODO transparently inject effects such as logging -> monad transformers
+
+// TODO play more with the following Applicative examples
+
+//List(3, 4) <*> List((_: Int) + 2, (_: Int) + 7)
+
+//1.node(2.node(3.leaf, 4.leaf), 5.leaf) <*> ((_: Int) + 10).node(((_:Int) + 20).node(((_:Int) + 30).leaf), ((_:Int) + 40).leaf)
 
 println("■")
