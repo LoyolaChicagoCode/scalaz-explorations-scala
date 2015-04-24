@@ -1,4 +1,4 @@
-import scalaz.{Monad, NaturalTransformation, Free, Functor}
+import scalaz._
 import scalaz.std.option._
 import scala.collection.mutable.{Map => MMap}
 
@@ -35,6 +35,8 @@ val p = for {
 
 type Prog[A] = Free[Lang, A]
 
+// immutable using foldRun
+
 // TODO failure?
 def runFn(store: Map[String, String], prog: Lang[Prog[Unit]]): (Map[String, String], Prog[Unit]) = prog match {
   case Get(key, next) => (store, next(store(key)))
@@ -44,16 +46,18 @@ def runFn(store: Map[String, String], prog: Lang[Prog[Unit]]): (Map[String, Stri
 
 p.foldRun(Map.empty[String, String])(runFn)
 
-type Cont[A] = Function0[Option[A]]
+// mutable using continuations
+
+type Cont[A] = () => Option[A]
 
 // TODO can this instance be derived instead?
-implicit val contInstance = new Monad[Cont] {
+implicit val contMonad = new Monad[Cont] {
   override def point[A](a: => A) = () => Some(a)
-  override def bind[A, B](fa: () => Option[A])(f: (A) => () => Option[B]): (() => Option[B]) =
+  override def bind[A, B](fa: Cont[A])(f: A => Cont[B]): Cont[B] =
     () => Monad[Option].bind(fa())(a => f(a)())
 }
 
-def h(store: MMap[String, String]) = new NaturalTransformation[Lang, Cont] {
+def runMutable(store: MMap[String, String]) = new (Lang ~> Cont) {
   override def apply[A](stmt: Lang[A]): Cont[A] = stmt match {
     case Get(key, next) => () => Some(next(store(key)))
     case Set(key, value, next) => () => { store.put(key, value) ; Some(next) }
@@ -62,17 +66,31 @@ def h(store: MMap[String, String]) = new NaturalTransformation[Lang, Cont] {
 }
 
 val s = MMap.empty[String, String]
-p.foldMap(h(s)).apply()
+p.foldMap(runMutable(s)).apply()
 s
 
-//type T[A] = Function1[(Map[String, String], Option[A], (Map[String, String], Option[A])]
-//
-//val h2 = new NaturalTransformation[Lang, T] {
-//  def apply[A](stmt: Lang[A]) = stmt match {
-//    case Get(key, next) => (store: Map[String, String], ) => (store, Some(next(store(key))))
-//    case Set(key, value, next) => (store: Map[String, String]) => (store + (key -> value), Some(next))
-//    case End => (_, None)
-//  }
-//}
-//
-//val s2 = p.foldMap(h2)
+// immutable using transformers
+
+// TODO research standard names for these types (State?)
+type T[S, A] = S => (S, Option[A])
+
+// TODO can this instance be derived instead?
+implicit def tMonad[S] = new Monad[({type t[a] = T[S, a]})#t] {
+  override def point[A](a: => A) = (_, Some(a))
+  override def bind[A, B](fa: T[S, A])(f: A => T[S, B]): T[S, B] = s0 => {
+    val (s1, a1) = fa(s0)
+    a1.map(a => f(a)(s1)).getOrElse(s1, None)
+  }
+}
+
+type TS[A] = T[Map[String, String], A]
+
+val runImmutable = new (Lang ~> TS) {
+  def apply[A](stmt: Lang[A]) = stmt match {
+    case Get(key, next) => (store: Map[String, String]) => (store, Some(next(store(key))))
+    case Set(key, value, next) => (store: Map[String, String]) => (store + (key -> value), Some(next))
+    case End => (_, None)
+  }
+}
+
+val s2 = p.foldMap(runImmutable).apply(Map.empty[String, String])
