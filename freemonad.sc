@@ -1,4 +1,5 @@
 import scalaz.{Monad, NaturalTransformation, Free, Functor}
+import scalaz.std.option._
 import scala.collection.mutable.{Map => MMap}
 
 // http://programmers.stackexchange.com/questions/242795/what-is-the-free-monad-interpreter-pattern
@@ -45,11 +46,11 @@ p.foldRun(Map.empty[String, String])(runFn)
 
 type Cont[A] = Function0[Option[A]]
 
-// FIXME derive this instance?
-// FIXME enable bind instead of flatMap on Option?
+// TODO can this instance be derived instead?
 implicit val contInstance = new Monad[Cont] {
   override def point[A](a: => A) = () => Some(a)
-  override def bind[A, B](fa: () => Option[A])(f: (A) => () => Option[B]): (() => Option[B]) = () => fa().flatMap(a => f(a)())
+  override def bind[A, B](fa: () => Option[A])(f: (A) => () => Option[B]): (() => Option[B]) =
+    () => Monad[Option].bind(fa())(a => f(a)())
 }
 
 def h(store: MMap[String, String]) = new NaturalTransformation[Lang, Cont] {
