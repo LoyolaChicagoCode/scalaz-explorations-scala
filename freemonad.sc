@@ -1,5 +1,6 @@
 import scalaz._
-import scalaz.std.option._
+//import scalaz.std.option._
+import Scalaz._
 import scala.collection.mutable.{Map => MMap}
 
 // http://programmers.stackexchange.com/questions/242795/what-is-the-free-monad-interpreter-pattern
@@ -21,14 +22,18 @@ def get(key: String) = Free.liftF[Lang, String](Get(key, identity))
 def set(key: String, value: String) = Free.liftF[Lang, Unit](Set(key, value, ()))
 def end = Free.liftF[Lang, Unit](End)
 
-val p = for {
+val subroutine = for {
   _ <- set("foo", "baz")
   v <- get("foo")
   _ <- set("bar", v)
-  _ <- end
-  v <- get("bar")
+} yield ()
+
+val program = for {
+  _ <- subroutine
+  v <- get("foo")
   _ <- set("bam", v)
   _ <- end
+  _ <- set("bif", v)
 } yield ()
 
 // http://polygonalhell.blogspot.com/2014/12/scalaz-getting-to-grips-free-monad.html
@@ -44,7 +49,7 @@ def runFn(store: Map[String, String], prog: Lang[Prog[Unit]]): (Map[String, Stri
   case End => (store, Free.point(()))
 }
 
-p.foldRun(Map.empty[String, String])(runFn)
+program.foldRun(Map.empty[String, String])(runFn)
 
 // mutable using continuations
 
@@ -66,7 +71,7 @@ def runMutable(store: MMap[String, String]) = new (Lang ~> Cont) {
 }
 
 val s = MMap.empty[String, String]
-p.foldMap(runMutable(s)).apply()
+program.foldMap(runMutable(s)).apply()
 s
 
 // immutable using transformers
@@ -86,11 +91,11 @@ implicit def tMonad[S] = new Monad[({type t[a] = T[S, a]})#t] {
 type TS[A] = T[Map[String, String], A]
 
 val runImmutable = new (Lang ~> TS) {
-  def apply[A](stmt: Lang[A]) = stmt match {
+  override def apply[A](stmt: Lang[A]) = stmt match {
     case Get(key, next) => (store: Map[String, String]) => (store, Some(next(store(key))))
     case Set(key, value, next) => (store: Map[String, String]) => (store + (key -> value), Some(next))
     case End => (_, None)
   }
 }
 
-val s2 = p.foldMap(runImmutable).apply(Map.empty[String, String])
+val s2 = program.foldMap(runImmutable).apply(Map.empty[String, String])

@@ -1,4 +1,5 @@
-import scalaz.{Free, Functor}
+import scalaz.{Id, ~>, Free, Functor}
+import scalaz.std.list._
 
 // https://www.dropbox.com/s/9pjla37wg3imnvg/Interpreter.pdf
 // FIXME not working yet
@@ -20,17 +21,30 @@ type Expr[A] = Free[ExprF, A]
 def const(i: Int) = Free.liftF[ExprF, Int](Const(i))
 def plus(l: Int, r: Int) = Free.liftF[ExprF, Int](Plus(l, r))
 
-val r = for {
+val e = for {
   l <- const(3)
   m <- const(4)
-  n <- const(5)
-  o <- plus(l, m)
-  p <- plus(o, n)
-} yield o
+  n <- plus(l, m)
+} yield n
+
+val r = for {
+  n <- e
+  o <- const(5)
+  p <- plus(n, o)
+} yield p
 
 def goFn(expr: ExprF[Expr[Int]]): Expr[Int] = expr match {
-  case Const(i) => Free.point(i)
+  case Const(i) => Free.point(i) // TODO this ends evaluation
   case Plus(l, r) => for { i <- l ; j <- r } yield i + j
 }
 
 r.go(goFn)
+
+val run = new (ExprF ~> List) {
+  override def apply[A](e: ExprF[A]) = e match {
+    case Const(i: Int) => ??? // TODO make this work somehow
+    case Plus(l, r) => List(l, r)
+  }
+}
+
+r.foldMap(run)
