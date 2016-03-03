@@ -7,6 +7,8 @@ sealed trait Lang[+R]
 case class Get[R](key: String, next: String => R) extends Lang[R]
 case class Set[R](key: String, value: String, next: R) extends Lang[R]
 case object End extends Lang[Nothing]
+
+// TODO can we use Yoneda to get the free functor?
 implicit val langFunctor = new Functor[Lang] {
   def map[A, B](fa: Lang[A])(f: A => B): Lang[B] = fa match {
     case Get(key, next) => Get(key, f compose next)
