@@ -1,21 +1,13 @@
-import scalaz.{Free, Functor, Monad, ~>}
+import scalaz.{Free, Monad, ~>, Id}
 import scala.collection.mutable.{Map => MMap}
 import scalaz.std.option._
+// http://underscore.io/blog/posts/2015/04/14/free-monads-are-simple.html
 // http://programmers.stackexchange.com/questions/242795/what-is-the-free-monad-interpreter-pattern
 
 sealed trait Lang[+R]
 case class Get[R](key: String, next: String => R) extends Lang[R]
 case class Set[R](key: String, value: String, next: R) extends Lang[R]
 case object End extends Lang[Nothing]
-
-// TODO can we use Yoneda to get the free functor?
-implicit val langFunctor = new Functor[Lang] {
-  def map[A, B](fa: Lang[A])(f: A => B): Lang[B] = fa match {
-    case Get(key, next) => Get(key, f compose next)
-    case Set(key, value, next) => Set(key, value, f(next))
-    case End => End
-  }
-}
 
 def get(key: String) = Free.liftF[Lang, String](Get(key, identity))
 def set(key: String, value: String) = Free.liftF[Lang, Unit](Set(key, value, ()))
@@ -37,19 +29,8 @@ val program = for {
 // http://polygonalhell.blogspot.com/2014/12/scalaz-getting-to-grips-free-monad.html
 
 type Prog[A] = Free[Lang, A]
-// immutable using foldRun
-
-// TODO failure?
-def runFn(store: Map[String, String], prog: Lang[Prog[Unit]]): (Map[String, String], Prog[Unit]) = prog match {
-  case Get(key, next) => (store, next(store(key)))
-  case Set(key, value, next) => (store + (key -> value), next)
-  case End => (store, Free.point(()))
-}
-
-program.foldRun(Map.empty[String, String])(runFn)
 
 // mutable using continuations
-
 type Cont[A] = () => Option[A]
 
 // TODO can this instance be derived instead?
