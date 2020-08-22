@@ -51,8 +51,8 @@ import scalaz.scalacheck.ScalazProperties._
 import org.scalacheck.Arbitrary
 
 // the monoid laws should hold for these types
-monoid.laws[Int].check
-monoid.laws[String].check
-monoid.laws[List[Int]].check
+monoid.laws[Int].check()
+monoid.laws[String].check()
+monoid.laws[List[Int]].check()
 
 println("■")
