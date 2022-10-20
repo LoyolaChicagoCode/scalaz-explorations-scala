@@ -15,7 +15,7 @@ addCompilerPlugin("org.typelevel" % "kind-projector_2.13.3" % "0.13.2")
 
 libraryDependencies ++= Seq(
   "org.scalaz"     %% "scalaz-core"               % "7.3.6",
-  "org.scalatest"  %% "scalatest"                 % "3.2.13",
-  "org.scalacheck" %% "scalacheck"                % "1.16.0",
+  "org.scalatest"  %% "scalatest"                 % "3.2.14",
+  "org.scalacheck" %% "scalacheck"                % "1.17.0",
   "org.scalaz"     %% "scalaz-scalacheck-binding" % "7.3.6"
 )
